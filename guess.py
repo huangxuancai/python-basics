@@ -18,8 +18,10 @@ while True:
         
     if guess>answer:
         print("大了")
+        print(f"还剩{7-count}次机会！")
     elif guess<answer:
         print("小了")
+        print(f"还剩{7-count}次机会！")
     else:
         print(f"猜对了，你用了{count}次")
         ans = input("你还想玩吗？")
