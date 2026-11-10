@@ -51,8 +51,8 @@ nums.pop(0) #弹出下标为0的元素
 # print(len(nums), sum(nums), max(nums), min(nums))
 print(len(nums),sum(nums),max(nums),min(nums)) #打印列表的长度,和,最大值,最小值
 # print(nums.index(4), 4 in nums, nums.count(1))
-print(nums.index(4),4 in nums,nums.count(1)) #打印列表下标为4的元素,4是否在列表中,列表中值为1的个数
-# ...
+print(nums.index(4),4 in nums,nums.count(1)) #打印列表值为4的下标,4是否在列表中,列表中值为1的个数
+
 
 # --- A 组 8 题 -----------------------------------------------------
 # A1 建列表 [85, 92, 78, 92, 60], 打印长度/总和/最大值/最小值
@@ -89,7 +89,7 @@ print(nums2[-2:])
 
 # A8 用 [0]*5 建列表, 把第 2 个改成 99, 打印
 nums3=[0]*5
-nums3.insert(1,99)
+nums3[1]=99
 print(nums3)
 
 # ======================================================================
@@ -104,7 +104,7 @@ print(data[-3:])
 print(data[1:4])
 
 # B3 取所有偶数位(下标 0, 2, 4)
-print(data[1::2])
+print(data[::2])
 
 # B4 [::-1] 反转 与 reverse() 反转, 对比
 print(data[::-1])
@@ -116,7 +116,6 @@ print(data.reverse())
 '''
 
 # B5 先故意写 data[100] 让它崩, 把报错最后一行抄在下面, 再改 data[100:] 确认不崩
-print(data[100:])
 # 报错:IndexError: list index out of range
 
 
@@ -132,12 +131,22 @@ print(data[100:])
 # 原因:列表下标必须是整型或者切片,不能是字符
 #
 # E3 scores["不存在的人"]
-# 报错: name 'scores' is not defined
-# 原因: scores未定义
+try:
+    {"张三": 85}["不存在的人"]
+except KeyError as e:
+    print("E3 →", type(e).__name__ + ":", e)
+# 报错: KeyError
+# 原因: 
 #
 # E4 遍历字典时 pop  
-# 报错:pop expected at least 1 argument, got 0
-# 原因:不明白
+dd = {"a": 1, "b": 2}
+try:
+    for k in dd:
+        dd.pop(k)
+except RuntimeError as e:
+    print("E4 →", type(e).__name__ + ":", e)
+# 报错:
+# 原因:"崩在取下一个元素时""加已有 key 不算改大小"
 #
 # E5 result = nums.sort() 后 print(result)
 result = nums.sort()
@@ -162,7 +171,6 @@ print(sum(scores),round(sum(scores)/len(scores),1),max(scores),min(scores))
 # T2 从高到低排, 用切片打印前三名(不要动 scores 本身)
 print("\n--- T2 ---")
 # 你的代码 ↓
-print(scores.sort(reverse=True))
 print(sorted(scores,reverse=True)[:3])
 
 # ---------------- T3 用这份数据 ----------------
@@ -206,7 +214,7 @@ print("\n--- T5 ---")
 # 你的代码 ↓
 ranking = sorted(score_map.items(),key=lambda x:x[1],reverse=True)
 print(ranking)
-#看不懂
+#sorted用来比较,items拿出元组,key接受函数作用于列表的所有元素,用函数返回值作为排序依据,lambda匿名函数,reverse=True降序
 
 # ---------------- T6 用这份数据 ----------------
 sentence = "the quick brown fox jumps over the lazy dog the fox"
