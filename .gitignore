@@ -1,0 +1,7 @@
+# Python 编译缓存
+__pycache__/
+*.pyc
+
+# 练习时生成的临时文件
+demo.txt
+_tmp*
