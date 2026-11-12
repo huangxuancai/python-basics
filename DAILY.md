@@ -233,3 +233,55 @@
 **明天第一件事**：`dict_drill.py` 的 A 区 8 题 + B 区 5 题（30 分钟），然后 W1 Day6 函数（Day7 的 `todo.py` 要把 save/load 抽成函数）
 
 ---
+
+## 2026-11-12（W1 Day6）
+
+**做了什么**：`dict_drill.py` 22 题全对；`day6_practice.py` 18 题全对（A 8 / B 5 / C 5）；`todo_v2.py` 抽出 `ask_index()`，标记完成和删除两处重复的 8 行消除，6 个输入回归全过
+
+**卡住的地方**：
+
+```
+1. B5：把整个列表传给 get_score，报 TypeError: list indices must be integers
+2. B5：函数体里还写了一行 sorted(...)，结果没人接
+3. C2 find_best 逻辑全对但没 return，返回 None
+4. D 区重构把 int(input(prompt)) 合到一行，结果 int() 跑到 try 外面，输入 abc 直接崩
+5. ask_index 里 except 只 print 没 return，越界分支也没 return
+6. A8 docstring 打印了整个，不是第一行
+7. B2 用了 if lst == None 而不是 is None
+```
+
+**怎么解的**：
+
+```
+1. 分清分工：get_score(s) 只负责"给一个 dict 返回它的分数"，
+   sorted(..., key=get_score) 负责"把每个 dict 依次交给它"。函数里不该出现 sorted
+2. key=get_score 后面不能带括号 —— 带括号是"先算出一个值"，
+   而且把列表当参数传进去，报的是同一个 TypeError
+3. 加上 return ans。这是今天第 3 次"算了没交出去"（A6 故意、B5 静默、C2 忘 return）
+4. int() 是可能失败的运算，必须放在 try 里。合并代码时把它挤出去了 ——
+   这类"重构引入的回归"是最常见的真实事故
+5. 每个异常分支都要 return None，否则函数继续往下走，而且后面会 NameError
+6. area.__doc__.split("\n")[0]
+7. 判断 None 一律用 is None（== 比的是值，is 比的是"是不是同一个对象"）
+```
+
+**学到的规律**：
+
+```
+- sorted 的 key= 要的是"函数本身"（不带括号），它会拿每个元素去调一次
+- 函数的职责要单一：ask_index 只管拿到合法下标，不负责打印"已标记完成"、不负责存盘
+- 函数里算出来的东西不 return 就是 None；表达式结果没被赋值/return/print 就是废的
+- 重构时最容易丢的是"防御性代码"：try 的位置、异常的 return、边界检查
+- 报错类型先看懂再改：list indices must be integers 说明传进去的是列表，不是字段名写错
+```
+
+**面试能用**：
+
+- "我把两段重复的输入校验抽成 ask_index，重构之后输入 abc 反而崩了。原因是合并成 `int(input())` 时，我把转换动作挪到了 try 外面。这让我意识到重构最容易丢的就是防御性代码，所以改完必须把非法输入重跑一遍"
+- "sorted 的 key 参数收的是一个函数，不是值。我一开始把整个列表传进去，报 list indices must be integers，才明白它是对每个元素各调一次"
+- "写函数时如果算完没 return，调用方拿到 None 且不报错。我一天内犯了三次，现在写完会专门看一眼最后一行有没有 return"
+- "函数的职责要单一：我的 ask_index 只负责拿到合法下标，不负责保存和提示成功，这样两个调用点都能复用它"
+
+**明天第一件事**：W1 Day7 —— `todo.py` 成品（菜单收干净、改名）+ README + W1 周复盘 + 补累计小时
+
+---
