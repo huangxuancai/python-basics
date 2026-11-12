@@ -23,6 +23,30 @@ def save_todos(todos): # 每次改动后写回
             else:
                 f.write("0"+"\n")
 
+def ask_index(prompt, todos):
+    """提示输入编号，校验后返回 0 基下标；输入非法返回 None。
+
+    参数: prompt 提示语, todos 当前列表（用来判断越界）
+    返回: int 下标 或 None
+    """
+    if not todos:
+        print("暂无事项可操作")
+        return
+
+    temp = input(prompt)
+    try:
+        index=int(temp)-1
+    except ValueError:
+        print("输入无效，请输入数字:")
+        return
+
+    if index <0 or index >=len(todos):
+        print("输入编号无效!")
+        return
+
+    return index
+
+
 todos=load_todos()
 
 while True:
@@ -39,18 +63,8 @@ while True:
         print("================================")
     
     elif choice == "3":
-        if not todos:
-          print("暂无事项可操作")
-          continue
-        temp=input("请输入你已完成的事项编号:")
-        try:
-            finish_index=int(temp)
-        except ValueError:
-            print("输入无效，请输入数字")
-            continue
-        finish_index-=1
-        if finish_index >= len(todos) or finish_index < 0:
-            print("输入编号无效!")
+        finish_index=ask_index("请输入你已完成事项的编号:",todos)
+        if finish_index is None:
             continue
         todos[finish_index]["done"]=True
         save_todos(todos)
@@ -58,18 +72,8 @@ while True:
         print("================================")
     
     elif choice == "4":
-        if not todos:
-          print("暂无事项可操作")
-          continue
-        temp=input("请输入你要删除的事项编号:")
-        try:
-            del_index=int(temp)
-        except ValueError:
-            print("输入无效，请输入数字")
-            continue
-        del_index-=1
-        if del_index >= len(todos) or del_index < 0:
-            print("输入编号无效!")
+        del_index = ask_index("请输入你要删除的事项编号:",todos)
+        if del_index is None:
             continue
         todos.pop(del_index)
         save_todos(todos)
