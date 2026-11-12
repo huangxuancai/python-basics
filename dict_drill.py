@@ -45,10 +45,11 @@ print("A3", d2)
 print("A4", "banana" in d2,"grape" in d2)
 
 
-# A5 用 pop 删掉 d2 的 cherry,把 pop 的返回值存进变量;打印返回值和 d2
+# A5 d3 是 d2 的复制;用 pop 从 d3 删掉 cherry,把返回值存进变量;打印返回值和 d3
+#     （注意: pop 的对象是 d3,不是 d2 —— 否则 A6 的 len(d3) 对不上）
 # 期望输出: 2 {'apple': 10, 'banana': 5}
 d3 = dict(d2)
-print("A5", d2.pop("cherry"),d2)
+print("A5", d3.pop("cherry"),d3)
 
 
 # A6 打印 d3 的长度
@@ -58,13 +59,14 @@ print("A6",len(d3) )
 
 # A7 打印 d3 的所有 key(转成列表) 和所有 value(转成列表)
 # 期望输出: ['apple', 'banana'] [10, 5]
-print("A7", )
+print("A7",list(d3.keys()),list(d3.values()) )
 
 
 # A8 复制 d3 到 d5,清空 d5;打印 d5 和 d3
 # 期望输出: {} {'apple': 10, 'banana': 5}
 d5 = dict(d3)
-print("A8", )
+d5.clear()
+print("A8",d5,d3 )
 
 
 # ======================================================================
@@ -75,27 +77,30 @@ price = {"pen": 3, "book": 12, "bag": 45}
 
 # B1 只用 for k in price,把 key 收集进一个列表打印
 # 期望输出: ['pen', 'book', 'bag']
-print("B1", )
+print("B1", [k for k in price])
 
 
 # B2 用 .values() 收集所有价格进列表
 # 期望输出: [3, 12, 45]
-print("B2", )
+print("B2", [v for v in price.values()])
 
 
 # B3 用 .items() 收集成 [('pen',3), ...] 这种 (key, value) 元组列表
 # 期望输出: [('pen', 3), ('book', 12), ('bag', 45)]
-print("B3", )
+print("B3",[(k,v) for k,v in price.items()] )
 
 
 # B4 求所有价格的总和
 # 期望输出: 总价: 60
-print("B4 总价:", )
+total=0
+for v in price.values():
+    total+=v
+print("B4 总价:",total )
 
 
 # B5 找出最贵的商品名(提示: max(price, key=price.get))
 # 期望输出: 最贵: bag
-print("B5 最贵:", )
+print("B5 最贵:", max(price,key=price.get))
 
 
 # ======================================================================
@@ -106,20 +111,26 @@ print("\n=== C 区 ===")
 # C1 统计 text 里每个单词出现次数(提示: count.get(w,0)+1)
 # 期望输出: {'a': 3, 'b': 2, 'c': 1}
 text = "a b a c b a"
-print("C1", )
+ans={}
+for t in text.split():
+    ans[t]=ans.get(t,0)+1
+print("C1", ans)
 
 
 # C2 找出 students 里分数最高的那个人名
 # 期望输出: 李四
 students = {"张三": 85, "李四": 92, "王五": 78}
-print("C2", )
+print("C2", max(students,key=students.get))
 
 
 # C3 把 pairs 拼成 "name=张三&score=85" 这种一行
 # 期望输出: name=张三&score=85
 pairs = {"name": "张三", "score": 85}
 print("C3", )
-
+parts=[]
+for k,v in pairs.items():
+    parts.append(f"{k}={v}")
+print("&".join(parts))
 
 # C4 从 people 里取分数最高的前 2 个人的名字
 # 期望输出: ['李四', '张三']
@@ -128,13 +139,23 @@ people = [
     {"name": "李四", "score": 92},
     {"name": "王五", "score": 78},
 ]
-print("C4", )
+top = sorted(people,key=lambda p:p["score"],reverse=True)
+top2=top[:2]
+names=[]
+for t in top2:
+    names.append(t["name"])
+print("C4", names)
 
 
 # C5 把 people 按分数分组:>=80 进"及格",否则进"不及格"
 # 期望输出: {'及格': ['张三', '李四'], '不及格': ['王五']}
 groups = {"及格": [], "不及格": []}
-print("C5", )
+for p in people:
+    if p["score"] >= 80:
+        groups["及格"].append(p["name"])
+    else :
+        groups["不及格"].append(p["name"])
+print("C5",groups )
 
 
 # ======================================================================
@@ -145,19 +166,20 @@ dd = {"a": 1, "b": 2}
 
 # D1 把 dd 和 {"c": 3} 合并成一个新字典(提示: {**dd, "c": 3})
 # 期望输出: {'a': 1, 'b': 2, 'c': 3}
-print("D1", )
+print("D1", {**dd,"c": 3})
+# 我第一次见这种写法,帮我记下来
 
 
 # D2 用 zip 把 ["x","y"] 和 [1,2] 拼成字典
 # 期望输出: {'x': 1, 'y': 2}
-print("D2", )
+print("D2", dict(zip(["x","y"],[1,2])))
 
 
 # D3 把 {"a": 1} 反转成 {1: 'a'}
 # 期望输出: {1: 'a'}
-print("D3", )
+print("D3",{v:k for k,v in {"a": 1}.items()} )
 
 
 # D4 用 setdefault 给 dd 加一个 z:99(不存在才加),打印 setdefault 的返回值和 dd
 # 期望输出: 99 {'a': 1, 'b': 2, 'z': 99}
-print("D4", )
+print("D4",dd.setdefault("z",99),dd )
