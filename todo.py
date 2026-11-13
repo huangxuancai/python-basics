@@ -31,36 +31,54 @@ def ask_index(prompt, todos):
     """
     if not todos:
         print("暂无事项可操作")
-        return
+        return None
 
     temp = input(prompt)
     try:
         index=int(temp)-1
     except ValueError:
         print("输入无效，请输入数字:")
-        return
+        return None
 
     if index <0 or index >=len(todos):
         print("输入编号无效!")
-        return
+        return None
 
     return index
 
+def print_menu():
+    """打印一次菜单"""
+    print("\n =====代办事项=====")
+    print("1 添加  2 列出  3 标记完成  4 删除  q 退出")
+
+def print_todos(todos):
+    """打印当前列表:空列表给提示."""
+    if not todos:
+        print("(暂无事项)")
+        return
+    for i,todo in enumerate(todos,start=1):
+        mark = "[x]" if todo["done"] else "[ ]"
+        print(f"{i}.{mark} {todo['title']}")
+          
+def show_stats(todos):
+    """打印完成进度：已完成 x / 共 y。"""
+    done_count=0
+    for todo in todos:
+        if todo["done"]:
+            done_count+=1
+    print(f"进度: {done_count}/{len(todos)} 已完成")
 
 todos=load_todos()
+print_todos(todos)
 
 while True:
-    print("1 添加")
-    print("2 列出")
-    print("3 标记完成")
-    print("4 删除")
-    print("q 退出")
+    print_menu()
     choice=input("请输入你的选项:")
     if choice == "1":
         add_title=input("请输入你需要添加的代办事项:")
         todos.append({"title":add_title,"done":False})
         save_todos(todos)
-        print("================================")
+        
     
     elif choice == "3":
         finish_index=ask_index("请输入你已完成事项的编号:",todos)
@@ -69,7 +87,7 @@ while True:
         todos[finish_index]["done"]=True
         save_todos(todos)
         print("已标记完成")
-        print("================================")
+        
     
     elif choice == "4":
         del_index = ask_index("请输入你要删除的事项编号:",todos)
@@ -78,21 +96,17 @@ while True:
         todos.pop(del_index)
         save_todos(todos)
         print("已删除")
-        print("================================")
+        
     
     elif choice == "2":
-        if not todos:
-              print("暂无事项可操作")
-              continue
-        else: 
-            for i,todo in enumerate(todos,start=1):
-                mark="[x]" if todo["done"] else "[ ]"
-                print(f"{i}. {mark} {todo['title']}")
-        print("================================")
+        print_todos(todos)
+
+    elif choice == "5":
+        show_stats(todos)
     
     elif choice == "q":
         break
     
     else:
         print("输入有误,请重新输入!")
-        print("================================")
+        
