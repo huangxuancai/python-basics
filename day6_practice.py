@@ -232,10 +232,7 @@ print("C2", find_best(students_c))
 pairs_c = {"name": "张三", "score": 85}
 # 你的函数 ↓
 def format_params(d):
-    parts=[]
-    for k,v in d.items():
-        parts.append(f"{k}={v}")
-    return "&".join(parts)
+    return "&".join(f"{k}={v}" for k, v in d.items())
 
 print("C3", format_params(pairs_c))
 
