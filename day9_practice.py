@@ -40,9 +40,18 @@ print("\n=== A 区 ===")
 #    测试 safe_div(10, 2) 和 safe_div(10, 0)
 # 期望输出: 5.0 None
 # 你的函数 ↓
+def safe_div(a, b):
+    try:
+        result = a/b
+    except ZeroDivisionError as e:
+        return None
+    else:
+        print("计算成功")
+    finally:
+        print("运算结束")
+    return result
 
-
-print("A1", )
+print("A1",safe_div(10, 2),safe_div(10, 0) )
 
 
 # A2 给 safe_div 加 else 分支:计算成功时打印"计算成功"(必须放 else 里,不放 try 里)
@@ -61,21 +70,34 @@ print("A1", )
 expr_a4 = ["int('abc')", "'2' + 2", "1 / 0"]
 for expr in expr_a4:
     # 提示: 用 eval(expr) 执行字符串表达式(仅练习用)
-    pass
-
-
+    try:
+        eval(expr)
+    except ValueError as e:
+        print(f"{type(e).__name__} : {e}")
+    except TypeError as e:
+        print(f"{type(e).__name__} : {e}")
+    except Exception as e:
+        print(f"{type(e).__name__} : {e}")
 # A5 触发 int("abc"),用 as e 打印 type(e).__name__ 和 e 本身
 # 期望输出: ValueError : invalid literal for int() with base 10: 'abc'
-print("A5", )
-
+try:
+    int('abc')
+except ValueError as e:
+    print(f"{type(e).__name__} : {e}")
 
 # A6 定义 f_return():try 里 return "try的return",finally 里打印"finally 还是跑了"
 #    调用并打印返回值,验证 finally 在 return 之后仍执行
 # 期望输出: finally 还是跑了   然后   try的return
 # 你的函数 ↓
+def f_return():
+    try:
+        return "try的return"
+    except:
+        pass
+    finally:
+        print("finally 还是跑了")
 
-
-print("A6", )
+print("A6", f_return())
 
 
 # ======================================================================
@@ -84,30 +106,45 @@ print("A6", )
 print("\n=== B 区 ===")
 
 # B1 表达式: [1, 2, 3][9]
-# 我的预测:
-# 实际(跑完填):
+# 我的预测:IndexError
+# 实际(跑完填):IndexError : list index out of range
 # 你的代码 ↓
-
+try:
+    [1, 2, 3][9]
+except Exception as e:
+    print(f"{type(e).__name__} : {e}")
 
 # B2 表达式: {"a": 1}["b"]
-# 我的预测:
-# 实际(跑完填):
-
+# 我的预测:KeyError
+# 实际(跑完填):KeyError
+try:
+    {"a": 1}["b"]
+except Exception as e:
+    print(f"{type(e).__name__} : {e}")
 
 # B3 表达式: "2" + 2
-# 我的预测:
-# 实际(跑完填):
-
+# 我的预测:TypeError
+# 实际(跑完填):TypeError
+try:
+    "2" + 2
+except Exception as e:
+    print(f"{type(e).__name__} : {e}")
 
 # B4 表达式: int("九十二")
-# 我的预测:
-# 实际(跑完填):
-
+# 我的预测:ValueError
+# 实际(跑完填):ValueError
+try:
+    int("九十二")
+except Exception as e:
+    print(f"{type(e).__name__} : {e}")
 
 # B5 表达式: None.title
-# 我的预测:
-# 实际(跑完填):
-
+# 我的预测:AttributeError
+# 实际(跑完填):AttributeError
+try:
+    None.title
+except Exception as e:
+    print(f"{type(e).__name__} : {e}")
 # B 区统一模板(每题都用这个结构):
 # try:
 #     表达式
@@ -124,33 +161,57 @@ print("\n=== C 区 ===")
 #    调用方 try/except 接住,用 as e 打印;再测一次正常的 withdraw(100, 30)
 # 期望输出: ValueError : 余额不足   然后   70
 # 你的函数 ↓
+def withdraw(balance, x):
+    if x > balance:
+        raise ValueError("余额不足")
+    balance-=x
+    return balance
+try:
+    withdraw(100,101)
+except ValueError as e:
+    print(f"{type(e).__name__} : {e}")
 
 
-print("C1", )
+
+print("C1", withdraw(100, 30))
 
 
 # C2 内层函数:try 里 1/0,except ZeroDivisionError 里打印"内层记录日志"后【裸 raise】
 #    外层再 try/except 接住,打印"外层接到" + type(e).__name__
 # 期望输出: 内层记录日志   然后   外层接到 ZeroDivisionError
-
-
+try:
+    try:
+      1/0
+    except ZeroDivisionError as e:
+      print("内层记录日志")
+      raise
+except Exception as e:
+    print(f"外层接到 + {type(e).__name__}")
+  
 # C3 内层 try 里 int("abc"),except ValueError as e 后
 #    raise RuntimeError("包装后的错误") from e
 #    外层接住 RuntimeError,打印 e 和 e.__cause__ 的类型
 # 期望输出: 包装后的错误   __cause__ 类型: ValueError
-
+try:
+    try:
+        int("abc")
+    except ValueError as e:
+        raise RuntimeError("包装后的错误") from e
+except RuntimeError as e:
+    print(f"{type(e).__name__} : {e} {type(e.__cause__).__name__} : {e.__cause__}")
 
 # C4 定义异常家族:
 #    class TodoError(Exception): pass
 #    class InvalidIndexError(TodoError): pass
 #    class EmptyTitleError(TodoError): pass
 # 你的代码 ↓
-
-
+class TodoError(Exception): pass
+class InvalidIndexError(TodoError): pass
+class EmptyTitleError(TodoError): pass
 
 # C5 打印两个 issubclass 判断,都应为 True
 # 期望输出: True True
-print("C5", )
+print("C5", issubclass(InvalidIndexError,TodoError),issubclass(EmptyTitleError,TodoError))
 
 
 # ======================================================================
@@ -164,14 +225,20 @@ todos_d = ["复习"]
 #    title.strip() 为空时 raise EmptyTitleError("标题不能为空")
 #    否则 todos.append(title)
 # 你的函数 ↓
-
+def add_todo(todos, title):
+    if not title.strip():
+        raise EmptyTitleError("标题不能为空")
+    todos.append(title)
 
 
 # D2 定义 get_todo(todos, idx):
 #    idx < 0 或 idx >= len(todos) 时 raise InvalidIndexError(f"下标 {idx} 越界(共{len(todos)}条)")
 #    否则返回 todos[idx]
 # 你的函数 ↓
-
+def get_todo(todos, idx):
+    if idx < 0 or idx >= len(todos):
+        raise InvalidIndexError(f"下标 {idx} 越界(共{len(todos)}条)")
+    return todos[idx]
 
 
 # D3 验收剧本:用 except TodoError as e 接住家族异常
@@ -189,8 +256,22 @@ todos_d = ["复习"]
 #   EmptyTitleError : 标题不能为空
 #   InvalidIndexError : 下标 99 越界(共1条)
 #   ['复习', '写代码']
+try:
+    add_todo(todos_d, "  ")
+except EmptyTitleError as e:
+    print(f"{type(e).__name__} : {e}")
 
+try:
+    get_todo(todos_d, 99)
+except InvalidIndexError as e:
+    print(f"{type(e).__name__} : {e}")
 
+try:
+    add_todo(todos_d, "写代码")
+except TodoError as e:
+    print(f"{type(e).__name__} : {e}")
+
+print(todos_d)
 # D4 两个设计问题(答案写进 DAILY.md,不写代码):
-#    1) ask_index 用 return None、get_todo 用 raise,同样是编号越界,为什么设计可以不同?
-#    2) 如果 todo.py 主循环改用 get_todo + except TodoError,菜单代码会变长还是变短?
+#    1) ask_index 用 return None、get_todo 用 raise,同样是编号越界,为什么设计可以不同? 答:因为ask_index 的调用方只有菜单,而且处理方式已知,所以直接return None;而get_todo的处理方式未知,所以用raise
+#    2) 如果 todo.py 主循环改用 get_todo + except TodoError,菜单代码会变长还是变短? 答:不确定,菜单代码把if/else换成了try/except,但校验逻辑从主循环挪进了函数

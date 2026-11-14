@@ -479,3 +479,56 @@
 ```
 
 **明天第一件事**：开始前先用一个完整小例子把"实例 / 变量 / 方法 / __str__ 的关联"串一遍（今天懵在这里，不留坑），然后进 W2 Day3 异常处理
+
+---
+
+## 2026-11-14（W2 Day3 · 异常处理）
+
+**做了什么**：`day9_practice.py` 21 题全对（A 区 try/except/else/finally 完整形态、B 区 5 个异常类型、C 区 raise/裸重抛/异常链、D 区 TodoError 自定义异常家族 + add_todo/get_todo）；跟敲廖雪峰「错误处理」节（`lxf.py`）
+
+**卡住的地方**：
+
+```
+1. A2 的 else 永远不执行：return a/b 写在 try 里，函数当场结束，else 没机会跑
+2. add_todo 里写了 if title.strip() == " "，条件永远为 False，
+   全空格标题静默混进列表，异常永远抛不出来
+3. B 区先预测再跑：5 个只对了 1 个。
+   "2"+2 猜成 ValueError（实际 TypeError）、None.title 猜成"ClassError"（实际 AttributeError，根本没有这个异常）
+4. D4 设计题"同样是编号越界，ask_index 为什么 return None、get_todo 为什么 raise"，第一反应是不知道
+```
+
+**怎么解的**：
+
+```
+1. else 的执行条件 = try 完整跑完且没被 return/break 提前退出。
+   修法：try 里只计算存变量，else 做成功后的动作，return 放最后统一出口。
+   对照记：finally 连 return 都拦不住（A6 实测），else 会被 return 跳过
+2. strip() 的产物两端不可能有空格，跟 " " 比较是自己和自己的定义打架。
+   判空的通用模式：if not title.strip()
+3. 口诀：TypeError=类型不对；ValueError=类型对、值不行；AttributeError=对象没有这个属性/方法。
+   AttributeError 有真实案例：前天 dict 没改成 Todo 时报的
+   'dict' object has no attribute 'to_line' 就是它
+4. 答案：错误由谁处理，决定错误怎么传。
+   ask_index 调用方只有菜单、处理方式已知且固定（提示+continue）→ 就地消化 return None；
+   get_todo 是通用函数、无法预知调用方想怎么办 → raise 抛出去，把处理权交给调用方
+```
+
+**学到的规律**：
+
+```
+- try → 成功走 else / 失败走 except → finally 无论如何最后走；finally 在 return 之后仍执行
+- raise 三形态：抛新的 / except 里裸 raise 原样重抛 / raise X from e 记因果链（e.__cause__）
+- 自定义异常要建家族基类（TodoError），调用方 except TodoError 一网打尽，不误接别的库的错
+- except 范围越窄越好：能用 TodoError 就不用 Exception，裸 except: 从今天的起禁用（会吞 Ctrl+C）
+- 数据进门先清洗：add_todo 存 title.strip() 而不是原始输入，脏空格就不会一路跟到 todo.txt
+- 静默失败比崩溃危险：永假条件不报错、数据悄悄变脏，这是"不报错的错最贵"的又一案例
+```
+
+**面试能用**：
+
+- "异常处理不是'别让程序崩'，是'崩溃的边界要可控'。预期内、调用方能处理的错用 return None 就地消化；不该发生、处理方式未知的错用 raise 抛出去让调用方决定"
+- "我写校验时用过 `title.strip() == " "` 这种永假条件，程序不报错但脏数据进了列表。从此判空一律 `not x.strip()`，并且校验函数必须配'非法输入'测试用例"
+- "自定义异常建家族基类，调用方一个 except 接住整个模块的错误，异常名字本身就是文档"
+- "finally 和 else 的区别：return 之后 finally 仍执行、else 被跳过——所以清理资源放 finally（或直接用 with）"
+
+**明天第一件事**：W2 Day4，模块与包（import / `__name__ == "__main__"` / pip）—— 把 day9 里的 TodoError 家族抽成独立模块 `todo_errors.py`，正好用上 import
