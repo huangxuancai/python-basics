@@ -20,45 +20,48 @@ W2 Day4 · 模块与包练习
 # 0 · 开场自测(不查资料)
 # ======================================================================
 # 1. import math 和 from math import sqrt 用起来的区别:
-# 答:
+# 答:引入整个模块和引入模块里面的sqrt
 # 2. Python 去哪里找你 import 的模块:
-# 答:
+# 答:当前运行脚本所在目录->PYTHONPATH->标准库目录->site-packages
 # 3. __name__ == "__main__" 什么时候为真:
-# 答:
+# 答:运行主程序时
 # 4. 一个目录要成为"包",里面要有什么文件:
-# 答:
+# 答:__init__.py
 # 5. 装第三方包的命令:
-# 答:
+# 答:pip install
 
 
 # ======================================================================
 # A 区 · import 基础(6 题)
 # ======================================================================
 print("\n=== A 区 ===")
-
+import math
 # A1 import math,打印 math.sqrt(144) 和 math.pi(保留2位)
 # 期望输出: 12.0 3.14
-print("A1", )
+print("A1",math.sqrt(144),f"{math.pi:.2f}")
 
 
 # A2 from random import randint,生成一个 1-10 的数打印(每次不同是对的)
 # 期望输出: 1-10 之间的一个整数
-print("A2", )
+from random import randint
+print("A2", randint(1,10))
 
 
 # A3 import datetime as dt,打印 dt.date.today()
 # 期望输出: 2026-11-16(当天日期)
-print("A3", )
+import datetime as dt
+print("A3", dt.date.today())
 
 
 # A4 打印 sys.path[0],确认是你的项目目录
 # 期望输出: C:\Users\-\Desktop\study_Python-Basics_20251108_v1.0\python-basics
-print("A4", )
+import sys
+print("A4",sys.path[0] )
 
 
 # A5 用 dir(math) 看 math 里有哪些名字,打印前 8 个
 # 期望输出: ['__doc__', '__loader__', '__name__', ...] 这样的列表
-print("A5", )
+print("A5", dir(math)[:8])
 
 
 # A6 同一个模块 import 两次,两次之间 print 一句话
@@ -66,7 +69,8 @@ print("A5", )
 #    提示: import math 两次即可(math 顶层没打印,所以配合 B 区的 mytool 更直观;
 #          这里先用 id(math) is id(math) 或打印两次 import 之间的那句话验证不报错)
 # 期望输出: 两次 import 之间的那句话只出现一次上下文
-print("A6", )
+import math
+print("A6",math is math )
 
 
 # ======================================================================
@@ -80,22 +84,24 @@ print("\n=== B 区 ===")
 
 # B1 在 PowerShell 里: python mytool.py
 #    期望: 顶层行(__name__=__main__) + 自检行 double(21)=42 都出现
-#    看到的输出抄这里:
+#    看到的输出抄这里:PS C:\Users\-\Desktop\study_Python-Basics_20251108_v1.0\python-basics> python mytool.py
+#                    [mytool] 顶层执行, __name__=__main__
+#                    直接运行自检: 42
 
 
 # B2 建好 mytool.py 后,取消下面这行的注释,再跑本文件
 #    期望: 只出现顶层行(__name__=mytool),自检行不出现
-# import mytool   # ← mytool.py 建好后取消注释（不建就取消注释的话,整个文件 ModuleNotFoundError）
+import mytool   # ← mytool.py 建好后取消注释（不建就取消注释的话,整个文件 ModuleNotFoundError）
 
 
 # B3 调用 mytool.double(5)
 # 期望输出: 10
-print("B3", )
+print("B3",mytool.double(5) )
 
 
 # B4 再写一遍 import mytool(第二遍)
 #    期望: [mytool] 顶层行只打印过一次(缓存生效)
-# import mytool   # ← 第二遍,同样建好文件后取消注释
+import mytool   # ← 第二遍,同样建好文件后取消注释
 print("B4 第二次 import 完成,上面没有再出现顶层行 = 缓存生效")
 
 
@@ -112,29 +118,32 @@ text_c = "a b a c b a"
 pairs_c = {"name": "张三", "score": 85}
 
 # C1 在 PowerShell 里: python myutils.py → 自检输出正常
-#    看到的输出抄这里:
+#    看到的输出抄这里:{'a': 3, 'b': 2, 'c': 1} name=张三&score=85
 
 
 # C2 from myutils import count_words, format_params,调用并打印
 # 期望输出: {'a': 3, 'b': 2, 'c': 1} 和 name=张三&score=85
 # 你的代码 ↓
+from myutils import count_words, format_params
 
-
-print("C2", )
+print("C2", count_words(text_c),format_params(pairs_c))
 
 
 # C3 换成 import myutils as mu 的方式再调一遍(mu.count_words / mu.format_params)
 # 期望输出: 和 C2 相同
 # 你的代码 ↓
+import myutils as mu
 
-
-print("C3", )
+print("C3", mu.count_words(text_c),mu.format_params(pairs_c))
 
 
 # C4 故意 import 一个不存在的模块,用 try/except 接住并 as e 打印
 # 期望输出: ModuleNotFoundError : No module named '不存在的模块xyz'
 # 你的代码 ↓
-
+try:
+    import hxc
+except ModuleNotFoundError as e:
+    print(f"{type(e).__name__} : {e}")
 
 
 # ======================================================================
@@ -149,7 +158,9 @@ todos_d = [{"title": "买牛奶,面包", "done": False}]
 #    row = line.strip().split(",")
 #    打印 line 和 row
 # 期望输出: '买牛奶,面包,0' 然后 ['买牛奶', '面包', '0']  ← 标题被切成两半!
-print("D1", )
+line = f"{todos_d[0]['title']},{1 if todos_d[0]['done'] else 0}"
+row = line.strip().split(",")
+print("D1",line,row )
 
 
 # D2 用 json 做同一件事:
@@ -158,13 +169,17 @@ print("D1", )
 #    back = json.loads(s)
 #    打印 s、back、back == todos_d
 # 期望输出: [{"title": "买牛奶,面包", "done": false}] / [{'title': '买牛奶,面包', 'done': False}] / True
-print("D2", )
+import json
+s = json.dumps(todos_d, ensure_ascii=False)
+back = json.loads(s)
+print("D2", s,back,back == todos_d)
+
 
 
 # D3 在 PowerShell 里跑(不是写代码):
 #    python -m pip list | Select-String requests
 #    python -m pip show requests
-#    把 requests 的版本号抄这里:
+#    把 requests 的版本号抄这里:2.34.2
 # 答:
 
 
