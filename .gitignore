@@ -5,3 +5,7 @@ __pycache__/
 # 练习时生成的临时文件
 demo.txt
 _tmp*
+
+# 虚拟环境（不进仓库，靠 requirements.txt 重建）
+venv/
+.venv/

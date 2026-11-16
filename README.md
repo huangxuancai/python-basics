@@ -8,7 +8,10 @@
 
 ### 怎么跑
 
-    python todo.py        # 需要 Python 3.10+
+    python -m venv venv                 # 只需一次：建虚拟环境
+    venv\Scripts\activate               # 每次：激活（cmd 用 activate.bat，PS 用 Activate.ps1）
+    pip install -r requirements.txt     # 只需一次：装依赖
+    python todo.py                      # 运行
 
 ### 功能
 
@@ -38,3 +41,4 @@
 - `day4_practice.py` ~ `day6_practice.py`：每日练习
 - `dict_drill.py`：字典专项 22 题
 - `DAILY.md`：每日复盘（卡点 + 解决过程）
+
