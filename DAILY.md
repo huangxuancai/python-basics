@@ -736,3 +736,49 @@
 - "怎么处理中文乱码？先看 Content-Type 的 charset；没有就 r.encoding = r.apparent_encoding；改完要重读 r.text"
 
 **明天第一件事**：W2 Day7 综合实战——写 weather_cli.py，调 wttr.in API 查天气。今天学的 GET + json() + 异常处理 + timeout 全用上
+
+---
+
+## 2026-11-17（W2 Day7 · 天气查询脚本）
+
+**做了什么**：`weather_cli.py` 99 行，调 wttr.in API，输入城市名输出当前天气 + 未来 3 天预报；六条验收全过（Beijing/Chengdu 正常输出、无参数给用法提示、不存在城市给友好错误、断网重跑成功、todo.py 回归通过）；讲义 453 行
+
+**卡住的地方**：
+
+```
+1. wttr.in 不稳定，第一次跑报"连不上"，重跑就通了
+   → 不是代码问题，是该站偶尔抖动。Day6 学的异常处理正好兜住了：
+     给人话提示、不崩、能重试
+2. wttr.in 的坑（讲义里提前写了，但亲手撞一遍才记住）：
+   - 所有数值都是字符串（"7" 不是 7），显示时直接用，计算时要 int()
+   - 不存在的城市返回 500 + 纯文本，不是 404 + JSON
+     → 不能直接 r.json()，要先查 status_code
+   - 中文城市名能用但识别不准（"成都"→"Pihsien"即郫县）
+3. 错误分层的体会：get_weather 抛 RuntimeError，main 只捕 RuntimeError 翻译成人话
+   → 底层细节（Timeout/ConnectionError/HTTPError）不泄漏到入口层
+```
+
+**怎么解的**：
+
+```
+1. wttr.in 抖动靠重试解决，不需要改代码。如果频繁遇到可以加自动重试（2 次 + sleep 2s）
+2. 先查 r.status_code != 200 再决定读 r.text 还是 r.json()
+3. 函数职责分离：get_weather 只管"取数据+格式化"，main 只管"解析参数+打印+退出码"
+   → 以后写测试可以直接调 get_weather("Beijing")，不用模拟命令行
+```
+
+**学到的规律**：
+
+```
+- sys.argv[0] 是脚本名，sys.argv[1] 才是第一个参数；len(sys.argv) < 2 = 没传参
+- sys.exit(1) = 出错退出，shell/CI 靠这个判断成功失败
+- if __name__ == "__main__" 让文件既能当脚本又能被 import（Day4 学过，今天第一次用在真实项目里）
+- 公开 API 不一定稳定，timeout 和重试是必须的
+- 第一个"能给别人演示"的程序 = W2 前六天知识的串联：venv + requests + 异常处理 + 命令行参数
+```
+
+**面试能用**：
+
+- "我独立用 requests 写了一个命令行天气查询工具，调 wttr.in 公开 API，支持任意城市查询当前天气和未来 3 天预报。做了完整的异常处理：超时、断网、城市不存在、数据格式异常都有友好提示，不会给用户看 Python 栈。代码结构上把 API 调用和命令行入口分开，方便以后加测试"
+
+**W2 周复盘预告**：W2 技术内容全部完成。下一步做周复盘（自评 + commit 统计 + W3 准备）
