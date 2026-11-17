@@ -684,3 +684,55 @@
 - "排查过一个 pip 卡 40 秒的问题：网络 0.3 秒就通，但 install 静默卡住。用 faulthandler 抓栈发现卡在 tempfile 创建临时文件，根因是 pip 的 HTTP 缓存目录里有句柄未释放的坏文件，Windows 上 tempfile 会重试 32767 次才放弃。删缓存目录后恢复到 3 秒。这个排查思路是「先二分现象（--no-cache-dir），再抓运行时栈，别猜」"
 
 **明天第一件事**：W2 Day6，requests 库（GET/POST、headers、params、json、超时、状态码）——现在有了 venv，装第三方包不会再污染全局
+
+---
+
+## 2026-11-17（W2 Day6 · requests GET + 安全请求）
+
+**做了什么**：`day12_practice.py` 13 题全跑通（A 区 Response 解剖 4 题、B 区状态码与安全请求 3 题、C 区 params/headers 3 题、D 区 timeout 3 题）；主产出 `get_ip.py`（查公网 IP，四种失败模式都给人话提示）；讲义从旧版 1072 行重写到 518 行，砍掉 POST/Session/cookies/stream，只保留 GET + 响应读取 + 安全请求
+
+**卡住的地方**：
+
+```
+1. get_ip.py 第一次跑报 KeyError: 'oringin'
+   → 拼写错误，origin 写成了 oringin。改了就好
+2. 验收第 4 条把 timeout 改成 0.001 测超时提示，测完忘改回 10
+   → 之后每次跑都报"请求超时"，以为网络坏了，其实是自己埋的雷
+3. 跑完 13 题后说"我还不知道 requests 是什么"
+   → 会用但没从高处看过。它就是一个帮你发 HTTP 请求的函数库，
+     等价于浏览器地址栏输入 URL 按回车，区别是把响应变成 Python 对象让你用代码处理
+```
+
+**怎么解的**：
+
+```
+1. KeyError 报错信息里直接写了缺失的键名 'oringin'，对照 httpbin 文档发现是 origin
+2. 验收测试改参数后要立刻改回来，或者用单独的测试脚本而不是改主文件
+3. requests = urllib 的好用封装。标准库 urllib 能发请求但难用，requests 三行变一行。
+   今天只是学会"怎么用锤子钉钉子"，W4 会教"钉子是什么、为什么要钉"，W5 才是真正战场
+```
+
+**学到的规律**：
+
+```
+- requests.get() 返回 Response 对象，不是字典。r.json() 才返回字典
+- 404/500 不抛异常——requests 只对通信失败（连不上/超时）抛异常，HTTP 业务失败当正常响应。
+  不看状态码就 r.json() → JSONDecodeError，报错信息完全看不出是 404 导致的
+- raise_for_status() 把 4xx/5xx 变成 HTTPError，消息里带状态码和 URL，比 JSONDecodeError 有用一百倍
+- r.text 是解码后的 str，r.content 是原始 bytes。改 r.encoding 后重读 r.text 会变
+- 中文乱码不是服务器坏了，是解码方式不对。Content-Type 没写 charset 时 requests 按规范猜 ISO-8859-1，
+  UTF-8 中文被当成拉丁字符 → 乱码。修正：r.encoding = r.apparent_encoding
+- timeout=5 不等于"总共 5 秒"，是"连接最多 5 秒 + 每次读最多 5 秒"。不写 timeout = 无限等
+- ReadTimeout 和 ConnectionError 是两种不同的失败：前者连上了但等内容超时，后者根本没连上
+- safe_get 模板：try → get → raise_for_status → return，except 分别捕 Timeout/ConnectionError/HTTPError，
+  每个 except 给人话提示而不是 Python 栈
+```
+
+**面试能用**：
+
+- "requests 如何处理 HTTP 错误状态码？不自动抛异常，r.ok 是 status_code<400，要主动 raise_for_status() 才抛 HTTPError"
+- "timeout 参数限制什么？连接超时和读超时的上限，不是总时长；不写就是无限等"
+- "r.text 和 r.content 区别？content 是 bytes 原始，text 是按 encoding 解码的 str；改 encoding 后重读 text 会变"
+- "怎么处理中文乱码？先看 Content-Type 的 charset；没有就 r.encoding = r.apparent_encoding；改完要重读 r.text"
+
+**明天第一件事**：W2 Day7 综合实战——写 weather_cli.py，调 wttr.in API 查天气。今天学的 GET + json() + 异常处理 + timeout 全用上
