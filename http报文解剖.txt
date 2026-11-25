@@ -1,0 +1,44 @@
+============================================================
+请求 URL: GET https://www.baidu.com/
+============================================================
+
+【① 状态行】HTTP/1.1 200 OK
+
+【② 请求头】（requests 自动拼好发出去的）
+  User-Agent: python-requests/2.34.2
+  Accept-Encoding: gzip, deflate
+  Accept: */*
+  Connection: keep-alive
+
+【③④ 空行+请求体】GET 请求 body = None（None=没有，验证'GET一般没body'）
+
+------------------------------------------------------------
+
+【响应头】
+  Cache-Control: private, no-cache, no-store, proxy-revalidate, no-transform
+  Content-Encoding: gzip
+  Content-Length: 1145
+  Content-Type: text/html
+  Pragma: no-cache
+  Server: bfe
+  Set-Cookie: BDORZ=27315; max-age=86400; domain=.baidu.com; path=/
+  Date: Wed, 25 Nov 2026 12:23:16 GMT
+
+【响应体开头 200 字符】
+  <!DOCTYPE html>
+  <!--STATUS OK--><html> <head><meta http-equiv=content-type content=text/html;charset=utf-8><meta http-equiv=X-UA-Compatible content=IE=Edge><meta content=always name=referrer><link re
+
+============================================================
+【练习2 三问三答】
+Q1 请求头里有 User-Agent 吗？值是什么？
+A1 有。值是 python-requests/2.34.2
+   → requests 默认自报家门，网站一眼认出这是脚本不是浏览器。
+Q2 响应头的 Content-Type 是什么？和 r.json() 能解析成功有什么关系？
+A2 Content-Type = text/html
+   → 它声明'我发的body是什么格式'。application/json 表示body是JSON文本，
+     r.json() 才有东西可解析；但 r.json() 成败取决于body实际内容，
+     Content-Type 只是服务器的'声明'，声明错了照样解析失败——接口测试要两头都验。
+Q3 r.request 是什么对象？
+A3 是 PreparedRequest——发出这次请求的那个'请求报文'对象（类型: PreparedRequest）。
+   r 是响应，r.request 是请求，requests 把一问一答绑在一起了。
+   所以 r.request.headers 看请求头，r.headers 看响应头，方向别搞反。
